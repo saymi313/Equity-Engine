@@ -2,6 +2,7 @@ import React from 'react'
 import ExecutiveSummary from './reports/ExecutiveSummary'
 import FinancialBreakdown from './reports/FinancialBreakdown'
 import DetailedAnalysis from './reports/DetailedAnalysis'
+import ProjectionTables from './reports/ProjectionTables'
 import ExportSection from './reports/ExportSection'
 
 function ReportDashboard({ propertyData, results }) {
@@ -12,6 +13,7 @@ function ReportDashboard({ propertyData, results }) {
       <ExecutiveSummary results={results} />
       <FinancialBreakdown results={results} />
       <DetailedAnalysis propertyData={propertyData} results={results} />
+      <ProjectionTables results={results} />
       <ExportSection propertyData={propertyData} results={results} />
     </div>
   )

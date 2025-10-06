@@ -66,7 +66,7 @@ const ExecutiveSummary = ({ results }) => {
               </div>
               <div className="flex items-center text-sm text-emerald-600">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-                Positive cash flow
+                Monthly Cash Flow
               </div>
             </div>
           </motion.div>
@@ -91,7 +91,7 @@ const ExecutiveSummary = ({ results }) => {
               </div>
               <div className="flex items-center text-sm text-blue-600">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                Strong ROI
+                Return on Investment
               </div>
             </div>
           </motion.div>
@@ -116,7 +116,7 @@ const ExecutiveSummary = ({ results }) => {
               </div>
               <div className="flex items-center text-sm text-purple-600">
                 <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                Market rate
+                Capitalization Rate
               </div>
             </div>
           </motion.div>
@@ -141,7 +141,7 @@ const ExecutiveSummary = ({ results }) => {
               </div>
               <div className="flex items-center text-sm text-orange-600">
                 <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                Appreciation
+                Year 1 Equity
               </div>
             </div>
           </motion.div>

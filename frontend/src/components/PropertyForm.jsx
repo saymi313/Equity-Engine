@@ -4,6 +4,9 @@ import PropertyInfoSection from './forms/PropertyInfoSection'
 import PurchaseInfoSection from './forms/PurchaseInfoSection'
 import LoanInfoSection from './forms/LoanInfoSection'
 import ExpensesSection from './forms/ExpensesSection'
+import YearlyRatesSection from './forms/YearlyRatesSection'
+import UtilitiesSection from './forms/UtilitiesSection'
+import TaxInfoSection from './forms/TaxInfoSection'
 import SubmitButton from './forms/SubmitButton'
 
 function PropertyForm({ onSubmit }) {
@@ -71,7 +74,10 @@ function PropertyForm({ onSubmit }) {
     property: true,
     purchase: false,
     loan: false,
-    expenses: false
+    expenses: false,
+    yearly_rates: false,
+    utilities: false,
+    tax_info: false
   })
 
   const handleInputChange = (section, field, value) => {
@@ -130,14 +136,35 @@ function PropertyForm({ onSubmit }) {
           onToggle={toggleSection}
         />
 
-        <ExpensesSection
-          formData={formData}
-          handleInputChange={handleInputChange}
-          isExpanded={expandedSections.expenses}
-          onToggle={toggleSection}
-        />
+            <ExpensesSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              isExpanded={expandedSections.expenses}
+              onToggle={toggleSection}
+            />
 
-        <SubmitButton />
+            <YearlyRatesSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              isExpanded={expandedSections.yearly_rates}
+              onToggle={toggleSection}
+            />
+
+            <UtilitiesSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              isExpanded={expandedSections.utilities}
+              onToggle={toggleSection}
+            />
+
+            <TaxInfoSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              isExpanded={expandedSections.tax_info}
+              onToggle={toggleSection}
+            />
+
+            <SubmitButton />
       </form>
     </div>
   )
