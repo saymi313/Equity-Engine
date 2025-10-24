@@ -20,6 +20,7 @@ const YearlyRatesSection = ({ formData, handleInputChange, isExpanded, onToggle 
         value={formData.yearly_rate_increase.appreciation}
         onChange={(e) => handleInputChange('yearly_rate_increase', 'appreciation', parseFloat(e.target.value))}
         placeholder="2.0"
+        help="Annual home value growth (e.g., 2%)."
       />
       
       <InputField
@@ -30,6 +31,7 @@ const YearlyRatesSection = ({ formData, handleInputChange, isExpanded, onToggle 
         value={formData.yearly_rate_increase.rent_rate_inc}
         onChange={(e) => handleInputChange('yearly_rate_increase', 'rent_rate_inc', parseFloat(e.target.value))}
         placeholder="2.0"
+        help="Expected annual rent growth."
       />
       
       <InputField
@@ -40,6 +42,7 @@ const YearlyRatesSection = ({ formData, handleInputChange, isExpanded, onToggle 
         value={formData.yearly_rate_increase.property_tax_rate_inc}
         onChange={(e) => handleInputChange('yearly_rate_increase', 'property_tax_rate_inc', parseFloat(e.target.value))}
         placeholder="2.0"
+        help="Year-over-year tax increase assumption."
       />
       
       <InputField
@@ -50,6 +53,7 @@ const YearlyRatesSection = ({ formData, handleInputChange, isExpanded, onToggle 
         value={formData.yearly_rate_increase.insurance_rate_inc}
         onChange={(e) => handleInputChange('yearly_rate_increase', 'insurance_rate_inc', parseFloat(e.target.value))}
         placeholder="2.0"
+        help="Year-over-year insurance premium change."
       />
       
       <InputField
@@ -60,6 +64,7 @@ const YearlyRatesSection = ({ formData, handleInputChange, isExpanded, onToggle 
         value={formData.yearly_rate_increase.utility_rate_inc}
         onChange={(e) => handleInputChange('yearly_rate_increase', 'utility_rate_inc', parseFloat(e.target.value))}
         placeholder="2.0"
+        help="Annual increase in utilities paid by owner."
       />
     </div>
   </FormSection>

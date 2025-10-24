@@ -20,6 +20,8 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         value={formData.tax_info.improved_value_ratio}
         onChange={(e) => handleInputChange('tax_info', 'improved_value_ratio', parseFloat(e.target.value))}
         placeholder="0.7336"
+        help="Portion of purchase price attributable to the building (not land)."
+        error={formData.tax_info.improved_value_ratio <= 0 || formData.tax_info.improved_value_ratio >= 1 ? 'Enter between 0 and 1' : undefined}
       />
       
       <InputField
@@ -30,6 +32,8 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         value={formData.tax_info.income_tax_rate}
         onChange={(e) => handleInputChange('tax_info', 'income_tax_rate', parseFloat(e.target.value))}
         placeholder="22.0"
+        help="Marginal tax rate applied to taxable income."
+        error={formData.tax_info.income_tax_rate < 0 || formData.tax_info.income_tax_rate >= 1 ? 'Enter between 0 and 1' : undefined}
       />
       
       <InputField
@@ -40,6 +44,8 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         value={formData.tax_info.cap_gains_tax_rate}
         onChange={(e) => handleInputChange('tax_info', 'cap_gains_tax_rate', parseFloat(e.target.value))}
         placeholder="15.0"
+        help="Rate applied to long-term capital gains upon sale."
+        error={formData.tax_info.cap_gains_tax_rate < 0 || formData.tax_info.cap_gains_tax_rate >= 1 ? 'Enter between 0 and 1' : undefined}
       />
       
       <InputField
@@ -50,6 +56,8 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         value={formData.tax_info.recapture_tax_rate}
         onChange={(e) => handleInputChange('tax_info', 'recapture_tax_rate', parseFloat(e.target.value))}
         placeholder="25.0"
+        help="Rate for depreciation recapture on sale."
+        error={formData.tax_info.recapture_tax_rate < 0 || formData.tax_info.recapture_tax_rate >= 1 ? 'Enter between 0 and 1' : undefined}
       />
       
       <InputField
@@ -60,6 +68,8 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         value={formData.tax_info.depreciation_years}
         onChange={(e) => handleInputChange('tax_info', 'depreciation_years', parseFloat(e.target.value))}
         placeholder="27.5"
+        help="Residential property depreciates over 27.5 years."
+        error={formData.tax_info.depreciation_years <= 0 ? 'Must be > 0' : undefined}
       />
       
       <InputField
@@ -70,6 +80,8 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         value={formData.tax_info.selling_cost_percentage}
         onChange={(e) => handleInputChange('tax_info', 'selling_cost_percentage', parseFloat(e.target.value))}
         placeholder="3.0"
+        help="Estimated closing costs when selling (e.g., commissions)."
+        error={formData.tax_info.selling_cost_percentage < 0 || formData.tax_info.selling_cost_percentage >= 1 ? 'Enter between 0 and 1' : undefined}
       />
     </div>
     
