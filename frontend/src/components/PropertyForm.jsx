@@ -34,8 +34,8 @@ function PropertyForm({ onSubmit }) {
       purchase_date: new Date().toISOString().split('T')[0]
     },
     loan_info: {
-      percent_down: 0.2,
-      interest_rate: 0.04,
+      percent_down: 20,  // 20%
+      interest_rate: 4,  // 4%
       loan_term_years: 30,
       interest_only: false
     },
@@ -113,8 +113,8 @@ function PropertyForm({ onSubmit }) {
     if (!data.purchase_info.purchase_price || data.purchase_info.purchase_price <= 0) e.purchase_price = 'Purchase price must be > 0'
     if (data.purchase_info.closing_cost < 0) e.closing_cost = 'Closing cost cannot be negative'
     // Loan info
-    if (data.loan_info.percent_down < 0 || data.loan_info.percent_down >= 1) e.percent_down = 'Down payment must be between 0 and 1'
-    if (data.loan_info.interest_rate <= 0 || data.loan_info.interest_rate >= 1) e.interest_rate = 'Interest rate must be between 0 and 1'
+    if (data.loan_info.percent_down < 0 || data.loan_info.percent_down > 100) e.percent_down = 'Down payment must be between 0 and 100'
+    if (data.loan_info.interest_rate <= 0 || data.loan_info.interest_rate > 100) e.interest_rate = 'Interest rate must be between 0 and 100'
     if (!data.loan_info.loan_term_years || data.loan_info.loan_term_years <= 0) e.loan_term_years = 'Loan term must be > 0'
     // Expenses
     if (data.owner_paid_expenses.property_tax_yr < 0) e.property_tax_yr = 'Yearly tax cannot be negative'
@@ -134,12 +134,24 @@ function PropertyForm({ onSubmit }) {
     return e
   }
 
+  // Convert form data to backend format (percentages to decimals where needed)
+  const convertFormDataForBackend = (data) => {
+    const converted = JSON.parse(JSON.stringify(data)) // Deep clone
+
+    // Convert loan info percentages to decimals
+    converted.loan_info.percent_down = converted.loan_info.percent_down / 100
+    converted.loan_info.interest_rate = converted.loan_info.interest_rate / 100
+
+    return converted
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     const eMap = validate(formData)
     setErrors(eMap)
     if (Object.keys(eMap).length === 0) {
-      onSubmit(formData)
+      const backendData = convertFormDataForBackend(formData)
+      onSubmit(backendData)
     }
   }
 
@@ -154,7 +166,7 @@ function PropertyForm({ onSubmit }) {
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Property Investment Analysis</h2>
         <p className="text-gray-600">Complete the form below to get detailed financial insights</p>
       </motion.div>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <PropertyInfoSection
           formData={formData}
@@ -177,35 +189,35 @@ function PropertyForm({ onSubmit }) {
           onToggle={toggleSection}
         />
 
-            <ExpensesSection
-              formData={formData}
-              handleInputChange={handleInputChange}
-              isExpanded={expandedSections.expenses}
-              onToggle={toggleSection}
-            />
+        <ExpensesSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          isExpanded={expandedSections.expenses}
+          onToggle={toggleSection}
+        />
 
-            <YearlyRatesSection
-              formData={formData}
-              handleInputChange={handleInputChange}
-              isExpanded={expandedSections.yearly_rates}
-              onToggle={toggleSection}
-            />
+        <YearlyRatesSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          isExpanded={expandedSections.yearly_rates}
+          onToggle={toggleSection}
+        />
 
-            <UtilitiesSection
-              formData={formData}
-              handleInputChange={handleInputChange}
-              isExpanded={expandedSections.utilities}
-              onToggle={toggleSection}
-            />
+        <UtilitiesSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          isExpanded={expandedSections.utilities}
+          onToggle={toggleSection}
+        />
 
-            <TaxInfoSection
-              formData={formData}
-              handleInputChange={handleInputChange}
-              isExpanded={expandedSections.tax_info}
-              onToggle={toggleSection}
-            />
+        <TaxInfoSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          isExpanded={expandedSections.tax_info}
+          onToggle={toggleSection}
+        />
 
-            <SubmitButton disabled={Object.keys(errors).length > 0} />
+        <SubmitButton disabled={Object.keys(errors).length > 0} />
       </form>
     </div>
   )
