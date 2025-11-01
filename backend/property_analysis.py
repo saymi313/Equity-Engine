@@ -3,69 +3,159 @@ import numpy_financial as npf
 from datetime import datetime
 from loan_calculations import calculate_cumipmt, calculate_cumprinc
 
-def analyze_property_investment():
+def safe_float(value, default=0):
+    """Safely convert value to float, handling None, empty strings, and strings."""
+    if value is None or value == '':
+        return default
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+def safe_int(value, default=0):
+    """Safely convert value to int, handling None, empty strings, and strings."""
+    if value is None or value == '':
+        return default
+    try:
+        return int(float(value))  # Convert to float first to handle "3.0" strings
+    except (ValueError, TypeError):
+        return default
+
+def analyze_property_investment(form_data=None):
     """
     Main property investment analysis function.
     Returns the analysis results and yearly data.
+    
+    Args:
+        form_data: Dictionary containing form data from frontend. If None, uses default values.
     """
     # -------------------- Input Data --------------------
-    # Property Information (Input)
-    property_type = "House"
-    street = "123 ABC Street"
-    city = "City"
-    state = "State"
-    zip_code = "Zip Code"
-    year_built = 2024
-    sqft = 1234
-    lot_size = 1
-    parking = "Garage"
-    units = [{'beds': 3, 'baths': 2, 'rent': 4600}]
-    total_beds = 3
-    total_baths = 2
+    # Use form data if provided, otherwise use defaults
+    if form_data:
+        # Property Information (Input)
+        prop_info = form_data.get('property_info', {})
+        property_type = prop_info.get('property_type', 'House')
+        street = prop_info.get('street', '')
+        city = prop_info.get('city', '')
+        state = prop_info.get('state', '')
+        zip_code = prop_info.get('zip_code', '')
+        year_built = safe_int(prop_info.get('year_built'), 2024)
+        sqft = safe_float(prop_info.get('sqft'))
+        lot_size = safe_float(prop_info.get('lot_size'))
+        parking = prop_info.get('parking', 'Garage')
+        units = prop_info.get('units', [])
+        total_beds = safe_int(prop_info.get('total_beds'))
+        total_baths = safe_int(prop_info.get('total_baths'))
 
-    # Purchase Price & Rental Income (Input)
-    rent_monthly = 4600
-    purchase_price = 400000
-    closing_cost = 12000
-    initial_improvements = 0
-    purchase_date_str = "2025-01-01"
-    purchase_date = datetime.strptime(purchase_date_str, "%Y-%m-%d")
+        # Purchase Price & Rental Income (Input)
+        purchase_info = form_data.get('purchase_info', {})
+        rent_monthly = safe_float(purchase_info.get('rent_monthly'))
+        purchase_price = safe_float(purchase_info.get('purchase_price'))
+        closing_cost = safe_float(purchase_info.get('closing_cost'))
+        initial_improvements = safe_float(purchase_info.get('initial_improvements'))
+        purchase_date_str = purchase_info.get('purchase_date', '2025-01-01')
+        try:
+            purchase_date = datetime.strptime(purchase_date_str, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            purchase_date = datetime.strptime('2025-01-01', "%Y-%m-%d")
 
-    #Loan Info (Input)
-    percent_down = 0.20
-    interest_rate = 0.04
-    loan_term_years = 30
-    interest_only = False
+        # Loan Info (Input) - already converted to decimals in frontend
+        loan_info = form_data.get('loan_info', {})
+        percent_down = float(loan_info.get('percent_down', 0.20))
+        interest_rate = float(loan_info.get('interest_rate', 0.04))
+        loan_term_years = int(loan_info.get('loan_term_years', 30))
+        interest_only = loan_info.get('interest_only', False)
 
-    # Yearly Rate Increase (Input)
-    appreciation = 0.02
-    rent_rate_inc = 0.02
-    property_tax_rate_inc = 0.02
-    insurance_rate_inc = 0.02
-    utility_rate_inc = 0.02
+        # Yearly Rate Increase (Input)
+        rates = form_data.get('yearly_rate_increase', {})
+        appreciation = float(rates.get('appreciation', 0.02))
+        rent_rate_inc = float(rates.get('rent_rate_inc', 0.02))
+        property_tax_rate_inc = float(rates.get('property_tax_rate_inc', 0.02))
+        insurance_rate_inc = float(rates.get('insurance_rate_inc', 0.02))
+        utility_rate_inc = float(rates.get('utility_rate_inc', 0.02))
 
-    # Owner Paid Expenses (Input)
-    property_tax_yr = 6000
-    insurance_mo = 0
-    water_mo = 0
-    sewer_mo = 0
-    garbage_mo = 0
-    gas_electric_mo = 0
-    lawn_mo = 0
-    hoa = 0
-    other_expenses = 0
-    management_rate = 0.10
-    vacancy_rate = 0.04
-    maintenance_rate = 0.10
+        # Owner Paid Expenses (Input)
+        expenses = form_data.get('owner_paid_expenses', {})
+        property_tax_yr = safe_float(expenses.get('property_tax_yr'))
+        insurance_mo = safe_float(expenses.get('insurance_mo'))
+        water_mo = safe_float(expenses.get('water_mo'))
+        sewer_mo = safe_float(expenses.get('sewer_mo'))
+        garbage_mo = safe_float(expenses.get('garbage_mo'))
+        gas_electric_mo = safe_float(expenses.get('gas_electric_mo'))
+        lawn_mo = safe_float(expenses.get('lawn_mo'))
+        hoa = safe_float(expenses.get('hoa'))
+        other_expenses = safe_float(expenses.get('other_expenses'))
+        management_rate = float(expenses.get('management_rate', 0.10))
+        vacancy_rate = float(expenses.get('vacancy_rate', 0.04))
+        maintenance_rate = float(expenses.get('maintenance_rate', 0.10))
 
-    # Tax Info (Input)
-    improved_value_ratio = 0.7336
-    income_tax_rate = 0.22
-    cap_gains_tax_rate = 0.15
-    recapture_tax_rate = 0.25
-    depreciation_years = 27.5
-    q1_tax = "I will use a 1031 exchange"
-    selling_cost_percentage = 0.03
+        # Tax Info (Input)
+        tax_info = form_data.get('tax_info', {})
+        improved_value_ratio = float(tax_info.get('improved_value_ratio', 0.7336))
+        income_tax_rate = float(tax_info.get('income_tax_rate', 0.22))
+        cap_gains_tax_rate = float(tax_info.get('cap_gains_tax_rate', 0.15))
+        recapture_tax_rate = float(tax_info.get('recapture_tax_rate', 0.25))
+        depreciation_years = float(tax_info.get('depreciation_years', 27.5))
+        q1_tax = tax_info.get('q1_tax', 'I will use a 1031 exchange')
+        selling_cost_percentage = float(tax_info.get('selling_cost_percentage', 0.03))
+    else:
+        # Default values (for backward compatibility)
+        property_type = "House"
+        street = "123 ABC Street"
+        city = "City"
+        state = "State"
+        zip_code = "Zip Code"
+        year_built = 2024
+        sqft = 1234
+        lot_size = 1
+        parking = "Garage"
+        units = [{'beds': 3, 'baths': 2, 'rent': 4600}]
+        total_beds = 3
+        total_baths = 2
+
+        # Purchase Price & Rental Income (Input)
+        rent_monthly = 4600
+        purchase_price = 400000
+        closing_cost = 12000
+        initial_improvements = 0
+        purchase_date_str = "2025-01-01"
+        purchase_date = datetime.strptime(purchase_date_str, "%Y-%m-%d")
+
+        #Loan Info (Input)
+        percent_down = 0.20
+        interest_rate = 0.04
+        loan_term_years = 30
+        interest_only = False
+
+        # Yearly Rate Increase (Input)
+        appreciation = 0.02
+        rent_rate_inc = 0.02
+        property_tax_rate_inc = 0.02
+        insurance_rate_inc = 0.02
+        utility_rate_inc = 0.02
+
+        # Owner Paid Expenses (Input)
+        property_tax_yr = 6000
+        insurance_mo = 0
+        water_mo = 0
+        sewer_mo = 0
+        garbage_mo = 0
+        gas_electric_mo = 0
+        lawn_mo = 0
+        hoa = 0
+        other_expenses = 0
+        management_rate = 0.10
+        vacancy_rate = 0.04
+        maintenance_rate = 0.10
+
+        # Tax Info (Input)
+        improved_value_ratio = 0.7336
+        income_tax_rate = 0.22
+        cap_gains_tax_rate = 0.15
+        recapture_tax_rate = 0.25
+        depreciation_years = 27.5
+        q1_tax = "I will use a 1031 exchange"
+        selling_cost_percentage = 0.03
 
     # Derived Values (Formulae)
     down_payment = purchase_price * percent_down

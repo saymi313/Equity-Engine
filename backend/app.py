@@ -11,9 +11,11 @@ def health():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    # Note: To avoid changing business logic, we ignore incoming payload for now
-    # and run the existing analysis as-is, returning a frontend-compatible summary
-    analysis = analyze_property_investment()
+    # Get form data from request
+    form_data = request.get_json()
+    
+    # Run analysis with the form data
+    analysis = analyze_property_investment(form_data)
 
     # Build frontend-compatible results object based on backend output (Year 1)
     y1 = analysis['yearly_data'][1]

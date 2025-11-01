@@ -13,53 +13,53 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
   >
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <InputField
-        label="Improved Value Ratio"
+        label="Improved Value Ratio (%)"
         icon={Percent}
         type="number"
-        step="0.0001"
-        value={formData.tax_info.improved_value_ratio}
-        onChange={(e) => handleInputChange('tax_info', 'improved_value_ratio', parseFloat(e.target.value))}
-        placeholder="0.7336"
-        help="Portion of purchase price attributable to the building (not land)."
-        error={formData.tax_info.improved_value_ratio <= 0 || formData.tax_info.improved_value_ratio >= 1 ? 'Enter between 0 and 1' : undefined}
+        step="0.01"
+        value={formData.tax_info.improved_value_ratio * 100}
+        onChange={(e) => handleInputChange('tax_info', 'improved_value_ratio', parseFloat(e.target.value) / 100)}
+        placeholder="73.36"
+        help="Portion of purchase price attributable to the building (not land). Enter as percentage (e.g., 73.36 for 73.36%)."
+        error={formData.tax_info.improved_value_ratio <= 0 || formData.tax_info.improved_value_ratio >= 1 ? 'Enter between 0% and 100%' : undefined}
       />
-      
+
       <InputField
         label="Income Tax Rate (%)"
         icon={Percent}
         type="number"
         step="0.01"
-        value={formData.tax_info.income_tax_rate}
-        onChange={(e) => handleInputChange('tax_info', 'income_tax_rate', parseFloat(e.target.value))}
+        value={formData.tax_info.income_tax_rate * 100}
+        onChange={(e) => handleInputChange('tax_info', 'income_tax_rate', parseFloat(e.target.value) / 100)}
         placeholder="22.0"
-        help="Marginal tax rate applied to taxable income."
-        error={formData.tax_info.income_tax_rate < 0 || formData.tax_info.income_tax_rate >= 1 ? 'Enter between 0 and 1' : undefined}
+        help="Marginal tax rate applied to taxable income (e.g., 22 for 22%)."
+        error={formData.tax_info.income_tax_rate < 0 || formData.tax_info.income_tax_rate >= 1 ? 'Enter between 0 and 100' : undefined}
       />
-      
+
       <InputField
         label="Capital Gains Tax Rate (%)"
         icon={Percent}
         type="number"
         step="0.01"
-        value={formData.tax_info.cap_gains_tax_rate}
-        onChange={(e) => handleInputChange('tax_info', 'cap_gains_tax_rate', parseFloat(e.target.value))}
+        value={formData.tax_info.cap_gains_tax_rate * 100}
+        onChange={(e) => handleInputChange('tax_info', 'cap_gains_tax_rate', parseFloat(e.target.value) / 100)}
         placeholder="15.0"
-        help="Rate applied to long-term capital gains upon sale."
-        error={formData.tax_info.cap_gains_tax_rate < 0 || formData.tax_info.cap_gains_tax_rate >= 1 ? 'Enter between 0 and 1' : undefined}
+        help="Rate applied to long-term capital gains upon sale (e.g., 15 for 15%)."
+        error={formData.tax_info.cap_gains_tax_rate < 0 || formData.tax_info.cap_gains_tax_rate >= 1 ? 'Enter between 0 and 100' : undefined}
       />
-      
+
       <InputField
         label="Recapture Tax Rate (%)"
         icon={Percent}
         type="number"
         step="0.01"
-        value={formData.tax_info.recapture_tax_rate}
-        onChange={(e) => handleInputChange('tax_info', 'recapture_tax_rate', parseFloat(e.target.value))}
+        value={formData.tax_info.recapture_tax_rate * 100}
+        onChange={(e) => handleInputChange('tax_info', 'recapture_tax_rate', parseFloat(e.target.value) / 100)}
         placeholder="25.0"
-        help="Rate for depreciation recapture on sale."
-        error={formData.tax_info.recapture_tax_rate < 0 || formData.tax_info.recapture_tax_rate >= 1 ? 'Enter between 0 and 1' : undefined}
+        help="Rate for depreciation recapture on sale (e.g., 25 for 25%)."
+        error={formData.tax_info.recapture_tax_rate < 0 || formData.tax_info.recapture_tax_rate >= 1 ? 'Enter between 0 and 100' : undefined}
       />
-      
+
       <InputField
         label="Depreciation Years"
         icon={Calendar}
@@ -71,26 +71,26 @@ const TaxInfoSection = ({ formData, handleInputChange, isExpanded, onToggle }) =
         help="Residential property depreciates over 27.5 years."
         error={formData.tax_info.depreciation_years <= 0 ? 'Must be > 0' : undefined}
       />
-      
+
       <InputField
         label="Selling Cost Percentage (%)"
         icon={Percent}
         type="number"
         step="0.01"
-        value={formData.tax_info.selling_cost_percentage}
-        onChange={(e) => handleInputChange('tax_info', 'selling_cost_percentage', parseFloat(e.target.value))}
+        value={formData.tax_info.selling_cost_percentage * 100}
+        onChange={(e) => handleInputChange('tax_info', 'selling_cost_percentage', parseFloat(e.target.value) / 100)}
         placeholder="3.0"
-        help="Estimated closing costs when selling (e.g., commissions)."
-        error={formData.tax_info.selling_cost_percentage < 0 || formData.tax_info.selling_cost_percentage >= 1 ? 'Enter between 0 and 1' : undefined}
+        help="Estimated closing costs when selling (e.g., 3 for 3%)."
+        error={formData.tax_info.selling_cost_percentage < 0 || formData.tax_info.selling_cost_percentage >= 1 ? 'Enter between 0 and 100' : undefined}
       />
     </div>
-    
+
     <div className="mt-6">
       <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-2">
         <FileText className="w-4 h-4" />
         <span>Q1 Tax Strategy</span>
       </label>
-      <select 
+      <select
         value={formData.tax_info.q1_tax}
         onChange={(e) => handleInputChange('tax_info', 'q1_tax', e.target.value)}
         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"

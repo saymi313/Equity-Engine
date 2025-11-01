@@ -15,7 +15,7 @@ const ExportSection = ({ propertyData, results }) => {
 
       const pdf = new jsPDF('p', 'mm', 'a4')
       const page = { w: 210, h: 297, margin: 20 }
-      
+
       // Modern color scheme
       const colors = {
         primary: '#1e293b',    // slate-800
@@ -32,12 +32,13 @@ const ExportSection = ({ propertyData, results }) => {
       // Helper functions for formatting
       const formatCurrency = (value) => {
         if (typeof value !== 'number' || isNaN(value)) return '—'
-        return new Intl.NumberFormat('en-US', {
+        const formatted = new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
-        }).format(value)
+        }).format(Math.abs(value))
+        return value < 0 ? `-${formatted}` : formatted
       }
 
       const formatPercentage = (value) => {
@@ -58,17 +59,17 @@ const ExportSection = ({ propertyData, results }) => {
       const addSectionHeader = (title, y, color = colors.primary) => {
         pdf.setFillColor(248, 250, 252) // slate-50
         pdf.rect(page.margin - 5, y - 8, page.w - 2 * (page.margin - 5), 12, 'F')
-        
+
         pdf.setFont('helvetica', 'bold')
         pdf.setFontSize(14)
         pdf.setTextColor(color)
         pdf.text(title, page.margin, y)
-        
+
         // Add subtle line
         pdf.setDrawColor(color)
         pdf.setLineWidth(0.8)
         pdf.line(page.margin, y + 2, page.w - page.margin, y + 2)
-        
+
         return y + 10
       }
 
@@ -76,34 +77,34 @@ const ExportSection = ({ propertyData, results }) => {
       const addDataRows = (rows, startY, columns = 2) => {
         let y = startY
         const colWidth = (page.w - 2 * page.margin) / columns
-        
+
         rows.forEach((row, index) => {
           const col = index % columns
           const x = page.margin + (col * colWidth)
-          
+
           // Add subtle background for alternating rows
           if (index % 2 === 0) {
             pdf.setFillColor(248, 250, 252) // slate-50
             pdf.rect(x - 2, y - 3, colWidth - 4, 8, 'F')
           }
-          
+
           // Label
           pdf.setFont('helvetica', 'normal')
           pdf.setFontSize(10)
           pdf.setTextColor(colors.gray)
           pdf.text(row.label, x, y)
-          
+
           // Value
           pdf.setFont('helvetica', 'bold')
           pdf.setFontSize(10)
           pdf.setTextColor(colors.primary)
           const valueText = typeof row.value === 'string' ? row.value : formatCurrency(row.value)
           pdf.text(valueText, x + colWidth - 10, y, { align: 'right' })
-          
+
           // Move to next row
           if (col === columns - 1) y += 8
         })
-        
+
         return y + (rows.length % columns === 0 ? 0 : 8) + 5
       }
 
@@ -121,27 +122,27 @@ const ExportSection = ({ propertyData, results }) => {
       // Modern Header with gradient effect
       pdf.setFillColor(30, 41, 59) // slate-800
       pdf.rect(0, 0, page.w, 35, 'F')
-      
+
       // Logo area
       pdf.setFillColor(59, 130, 246) // blue-500
       pdf.rect(0, 0, 8, 35, 'F')
-      
+
       // Header text
       pdf.setTextColor(255, 255, 255)
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(18)
       pdf.text('EquityEngine', 15, 15)
-      
+
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(10)
       pdf.text('Property Investment Analysis Report', 15, 22)
-      
+
       // Date
       pdf.setFontSize(9)
-      pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       })}`, page.w - page.margin, 15, { align: 'right' })
 
       y = 50
@@ -149,16 +150,20 @@ const ExportSection = ({ propertyData, results }) => {
       // Property Information Section
       y = addSectionHeader('Property Information', y, colors.secondary)
       y = checkNewPage(y, 30)
-      
+
       const propertyRows = [
-        { label: 'Address', value: propertyData?.property_info ? 
-          `${propertyData.property_info.street}, ${propertyData.property_info.city}, ${propertyData.property_info.state} ${propertyData.property_info.zip_code}` : '—' },
+        {
+          label: 'Address', value: propertyData?.property_info ?
+            `${propertyData.property_info.street}, ${propertyData.property_info.city}, ${propertyData.property_info.state} ${propertyData.property_info.zip_code}` : '—'
+        },
         { label: 'Property Type', value: propertyData?.property_info?.property_type || '—' },
         { label: 'Year Built', value: propertyData?.property_info?.year_built || '—' },
         { label: 'Square Feet', value: propertyData?.property_info?.sqft ? `${propertyData.property_info.sqft.toLocaleString()} sqft` : '—' },
         { label: 'Lot Size', value: propertyData?.property_info?.lot_size ? `${propertyData.property_info.lot_size} acres` : '—' },
-        { label: 'Beds/Baths', value: propertyData?.property_info ? 
-          `${propertyData.property_info.total_beds}/${propertyData.property_info.total_baths}` : '—' },
+        {
+          label: 'Beds/Baths', value: propertyData?.property_info ?
+            `${propertyData.property_info.total_beds}/${propertyData.property_info.total_baths}` : '—'
+        },
         { label: 'Parking', value: propertyData?.property_info?.parking || '—' }
       ]
       y = addDataRows(propertyRows, y, 2)
@@ -166,7 +171,7 @@ const ExportSection = ({ propertyData, results }) => {
       // Executive Summary Section
       y = checkNewPage(y, 40)
       y = addSectionHeader('Executive Summary (Year 1)', y, colors.accent)
-      
+
       const summaryRows = [
         { label: 'Monthly Cash Flow', value: results.cashFlow },
         { label: 'Return on Investment (ROI)', value: results.roi },
@@ -180,7 +185,7 @@ const ExportSection = ({ propertyData, results }) => {
       // Monthly Financial Breakdown
       y = checkNewPage(y, 40)
       y = addSectionHeader('Monthly Financial Breakdown', y, colors.success)
-      
+
       const monthlyRows = [
         { label: 'Gross Monthly Rent', value: results.monthlyRent },
         { label: 'Monthly Operating Expenses', value: results.monthlyExpenses },
@@ -192,23 +197,27 @@ const ExportSection = ({ propertyData, results }) => {
       // Purchase & Financing Details
       y = checkNewPage(y, 40)
       y = addSectionHeader('Purchase & Financing', y, colors.warning)
-      
+
       const purchaseRows = [
         { label: 'Purchase Price', value: results.purchasePrice },
         { label: 'Down Payment', value: results.downPayment },
         { label: 'Loan Amount', value: results.loanAmount },
         { label: 'Total Cash Invested', value: results.totalCashInvested },
-        { label: 'Interest Rate', value: propertyData?.loan_info?.interest_rate ? 
-          formatPercentage(propertyData.loan_info.interest_rate) : '—' },
-        { label: 'Loan Term', value: propertyData?.loan_info?.loan_term_years ? 
-          `${propertyData.loan_info.loan_term_years} years` : '—' }
+        {
+          label: 'Interest Rate', value: propertyData?.loan_info?.interest_rate ?
+            formatPercentage(propertyData.loan_info.interest_rate) : '—'
+        },
+        {
+          label: 'Loan Term', value: propertyData?.loan_info?.loan_term_years ?
+            `${propertyData.loan_info.loan_term_years} years` : '—'
+        }
       ]
       y = addDataRows(purchaseRows, y, 2)
 
       // Annual Financial Summary
       y = checkNewPage(y, 40)
       y = addSectionHeader('Annual Financial Summary (Year 1)', y, colors.danger)
-      
+
       const annualRows = [
         { label: 'Gross Annual Rent', value: results.grossRentAnnual },
         { label: 'Vacancy Loss', value: results.vacancyLossAnnual },
@@ -222,16 +231,22 @@ const ExportSection = ({ propertyData, results }) => {
       // Key Financial Ratios
       y = checkNewPage(y, 40)
       y = addSectionHeader('Key Financial Ratios', y, colors.primary)
-      
+
       const ratioRows = [
-        { label: 'Gross Rent Multiplier', value: results.grossRentMultiplier ? 
-          formatNumber(results.grossRentMultiplier) : '—' },
+        {
+          label: 'Gross Rent Multiplier', value: results.grossRentMultiplier ?
+            formatNumber(results.grossRentMultiplier) : '—'
+        },
         { label: 'Break Even Ratio', value: results.breakEvenRatio },
-        { label: 'Debt Coverage Ratio', value: results.debtCoverageRatio ? 
-          formatNumber(results.debtCoverageRatio) : '—' },
+        {
+          label: 'Debt Coverage Ratio', value: results.debtCoverageRatio ?
+            formatNumber(results.debtCoverageRatio) : '—'
+        },
         { label: 'Debt Yield', value: results.debtYield },
-        { label: 'Equity Multiple', value: results.equityMultiple ? 
-          formatNumber(results.equityMultiple) : '—' },
+        {
+          label: 'Equity Multiple', value: results.equityMultiple ?
+            formatNumber(results.equityMultiple) : '—'
+        },
         { label: 'Internal Rate of Return (IRR)', value: results.irr }
       ]
       y = addDataRows(ratioRows, y, 2)
@@ -239,7 +254,7 @@ const ExportSection = ({ propertyData, results }) => {
       // Operating Expenses Breakdown
       y = checkNewPage(y, 40)
       y = addSectionHeader('Operating Expenses Breakdown', y, colors.secondary)
-      
+
       const expenseRows = [
         { label: 'Property Tax (Monthly)', value: results.propertyTaxMonthly },
         { label: 'Insurance (Monthly)', value: results.insuranceMonthly },
@@ -249,72 +264,163 @@ const ExportSection = ({ propertyData, results }) => {
       ]
       y = addDataRows(expenseRows, y, 2)
 
-      // Projections Table (if available)
-      if (results.projections) {
+      // Tax Benefits & Deductions Section (if yearly_data available)
+      if (propertyData?.yearly_data?.[1]) {
+        const year1 = propertyData.yearly_data[1]
+        y = checkNewPage(y, 50)
+        y = addSectionHeader('Tax Benefits & Deductions (Year 1)', y, colors.accent)
+
+        const taxRows = [
+          { label: 'Operating Income (Tax)', value: year1.effective_gross_income },
+          { label: 'Operating Expenses (Tax)', value: -year1.total_operating_expenses },
+          { label: 'Loan Interest', value: -year1.interest_paid },
+          { label: 'Depreciation', value: -year1.depreciation },
+          { label: 'Total Deductions', value: -(year1.total_operating_expenses + year1.interest_paid + year1.depreciation) },
+          { label: 'Taxable Income', value: year1.taxable_income },
+          { label: 'Income Tax Due', value: -year1.income_tax_due }
+        ]
+        y = addDataRows(taxRows, y, 2)
+      }
+
+      // Capital Gain Tax Section (if yearly_data available)
+      if (propertyData?.yearly_data?.[1]) {
+        const year1 = propertyData.yearly_data[1]
         y = checkNewPage(y, 60)
-        y = addSectionHeader('Long-term Projections', y, colors.accent)
-        
-        // Create projections table
+        y = addSectionHeader('Capital Gain Tax Analysis (Year 1)', y, colors.warning)
+
+        const capGainRows = [
+          { label: 'Original Cost Basis', value: year1.original_cost_basis },
+          { label: 'Capital Improvements', value: propertyData.purchase_info?.initial_improvements || 0 },
+          { label: 'Cumulative Depreciation', value: -year1.cum_dep },
+          { label: 'Selling Cost (Tax)', value: year1.selling_cost },
+          { label: 'Adjusted Cost Basis', value: -year1.adjusted_cost_basis },
+          { label: 'Sale Price', value: year1.property_value },
+          { label: 'Capital Gain', value: year1.capital_gain },
+          { label: 'Tax on Capital Gain', value: -year1.tax_on_capital_gain },
+          { label: 'Recapture Tax', value: -year1.recapture_tax }
+        ]
+        y = addDataRows(capGainRows, y, 2)
+      }
+
+      // Sale Analysis Section (if yearly_data available)
+      if (propertyData?.yearly_data?.[1]) {
+        const year1 = propertyData.yearly_data[1]
+        y = checkNewPage(y, 60)
+        y = addSectionHeader('Sale Analysis - Pre-Tax (Year 1)', y, colors.success)
+
+        const salePreTaxRows = [
+          { label: 'Equity', value: year1.equity },
+          { label: 'Selling Cost', value: -year1.selling_cost },
+          { label: 'Sale Proceeds', value: year1.sale_proceeds },
+          { label: 'Cumulative Cash Flow', value: year1.cum_cash_flow },
+          { label: 'Total Cash Invested', value: -results.totalCashInvested },
+          { label: 'Total Profit (Pre-Tax)', value: year1.total_profit_pre_tax }
+        ]
+        y = addDataRows(salePreTaxRows, y, 2)
+      }
+
+      // Sale Analysis Post-Tax Section (if yearly_data available)
+      if (propertyData?.yearly_data?.[1]) {
+        const year1 = propertyData.yearly_data[1]
+        y = checkNewPage(y, 50)
+        y = addSectionHeader('Sale Analysis - Post-Tax (Year 1)', y, colors.danger)
+
+        const salePostTaxRows = [
+          { label: 'Total Profit (Pre-Tax)', value: year1.total_profit_pre_tax },
+          { label: 'Cumulative Income Tax Paid', value: -year1.cum_income_tax },
+          { label: 'Capital Gain Tax Due', value: -year1.tax_on_capital_gain },
+          { label: 'Recapture Tax Due', value: -year1.recapture_tax },
+          { label: 'Total Profit (Post-Tax)', value: year1.total_profit_post_tax }
+        ]
+        y = addDataRows(salePostTaxRows, y, 2)
+      }
+
+      // Detailed Projections Table (if available)
+      if (results.projections && propertyData?.yearly_data) {
+        y = checkNewPage(y, 80)
+        y = addSectionHeader('Long-term Projections (Years 1, 5, 10, 20, 30)', y, colors.accent)
+
         const projectionYears = results.projections.years
         const projectionData = [
-          ['Year', 'Gross Rent', 'NOI', 'Cash Flow', 'Property Value', 'Equity', 'Cap Rate', 'ROI']
+          ['Year', 'Gross Rent', 'Op Income', 'Op Expenses', 'NOI', 'Cash Flow', 'Prop Value', 'Equity', 'Cap Rate %', 'ROI %']
         ]
-        
+
         projectionYears.forEach((year, index) => {
-          projectionData.push([
-            year.toString(),
-            formatCurrency(results.projections.grossRent[index]),
-            formatCurrency(results.projections.noi[index]),
-            formatCurrency(results.projections.cashFlow[index]),
-            formatCurrency(results.projections.propertyValue[index]),
-            formatCurrency(results.projections.equity[index]),
-            `${results.projections.capRate[index].toFixed(1)}%`,
-            `${results.projections.roi[index].toFixed(1)}%`
-          ])
+          const yearData = propertyData.yearly_data[year]
+          if (yearData) {
+            projectionData.push([
+              year.toString(),
+              formatCurrency(results.projections.grossRent[index]),
+              formatCurrency(results.projections.operatingIncome[index]),
+              formatCurrency(results.projections.operatingExpenses[index]),
+              formatCurrency(results.projections.noi[index]),
+              formatCurrency(results.projections.cashFlow[index]),
+              formatCurrency(results.projections.propertyValue[index]),
+              formatCurrency(results.projections.equity[index]),
+              `${results.projections.capRate[index].toFixed(1)}%`,
+              `${results.projections.roi[index].toFixed(1)}%`
+            ])
+          }
         })
 
-        // Simple table implementation
-        const tableStartY = y
-        const colWidths = [15, 25, 25, 25, 25, 25, 20, 20]
+        // Enhanced table implementation with more columns
+        const colWidths = [12, 22, 22, 22, 22, 22, 22, 22, 18, 18]
         const startX = page.margin
-        
+
         projectionData.forEach((row, rowIndex) => {
           let x = startX
           row.forEach((cell, colIndex) => {
             pdf.setFont('helvetica', rowIndex === 0 ? 'bold' : 'normal')
-            pdf.setFontSize(rowIndex === 0 ? 9 : 8)
+            pdf.setFontSize(rowIndex === 0 ? 8 : 7)
             pdf.setTextColor(rowIndex === 0 ? colors.primary : colors.gray)
-            pdf.text(cell, x, y)
+            // Truncate long values for better fit
+            const displayCell = cell.length > 15 ? cell.substring(0, 12) + '...' : cell
+            pdf.text(displayCell, x, y, { maxWidth: colWidths[colIndex] })
             x += colWidths[colIndex]
           })
           y += rowIndex === 0 ? 6 : 5
+          // Check for new page
+          if (y > page.h - 30 && rowIndex < projectionData.length - 1) {
+            pdf.addPage()
+            y = 30
+            // Redraw header row on new page
+            pdf.setFont('helvetica', 'bold')
+            pdf.setFontSize(8)
+            pdf.setTextColor(colors.primary)
+            let hx = startX
+            projectionData[0].forEach((cell, colIndex) => {
+              pdf.text(cell, hx, y, { maxWidth: colWidths[colIndex] })
+              hx += colWidths[colIndex]
+            })
+            y += 6
+          }
         })
         y += 10
       }
 
       // Modern Footer with proper branding
       const footerY = page.h - 25
-      
+
       // Footer background
       pdf.setFillColor(248, 250, 252) // slate-50
       pdf.rect(0, footerY - 10, page.w, 25, 'F')
-      
+
       // Footer line
       pdf.setDrawColor(203, 213, 225) // slate-300
       pdf.setLineWidth(0.5)
       pdf.line(page.margin, footerY - 5, page.w - page.margin, footerY - 5)
-      
+
       // Footer text
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(11)
       pdf.setTextColor(colors.primary)
       pdf.text('Equity Engine', page.margin, footerY + 5)
-      
+
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(10)
       pdf.setTextColor(colors.gray)
       pdf.text('  a project of', page.margin + 25, footerY + 5)
-      
+
       pdf.setFont('times new roman', 'bold')
       pdf.setTextColor(colors.secondary)
       pdf.textWithLink('Avancod', page.margin + 45, footerY + 5, { url: 'https://www.avancod.com' })
@@ -354,10 +460,10 @@ const ExportSection = ({ propertyData, results }) => {
 
       // Header
       excelData.push(['EQUITY ENGINE - PROPERTY INVESTMENT ANALYSIS REPORT'])
-      excelData.push(['Generated on:', new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      excelData.push(['Generated on:', new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       })])
       excelData.push([])
 
@@ -437,7 +543,7 @@ const ExportSection = ({ propertyData, results }) => {
       if (results.projections) {
         excelData.push(['LONG-TERM PROJECTIONS'])
         excelData.push(['Year', 'Gross Rent', 'NOI', 'Cash Flow', 'Property Value', 'Equity', 'Cap Rate (%)', 'ROI (%)'])
-        
+
         results.projections.years.forEach((year, index) => {
           excelData.push([
             year,
@@ -490,14 +596,14 @@ const ExportSection = ({ propertyData, results }) => {
         for (let C = range.s.c; C <= range.e.c; ++C) {
           const cellAddress = XLSX.utils.encode_cell({ r: R, c: C })
           if (!ws[cellAddress]) continue
-          
+
           // Style section headers
-          if (ws[cellAddress].v && typeof ws[cellAddress].v === 'string' && 
-              ws[cellAddress].v.includes('INFORMATION') || 
-              ws[cellAddress].v.includes('SUMMARY') || 
-              ws[cellAddress].v.includes('BREAKDOWN') || 
-              ws[cellAddress].v.includes('RATIOS') || 
-              ws[cellAddress].v.includes('PROJECTIONS')) {
+          if (ws[cellAddress].v && typeof ws[cellAddress].v === 'string' &&
+            ws[cellAddress].v.includes('INFORMATION') ||
+            ws[cellAddress].v.includes('SUMMARY') ||
+            ws[cellAddress].v.includes('BREAKDOWN') ||
+            ws[cellAddress].v.includes('RATIOS') ||
+            ws[cellAddress].v.includes('PROJECTIONS')) {
             ws[cellAddress].s = {
               font: { bold: true, size: 12 },
               fill: { fgColor: { rgb: "E3F2FD" } }
@@ -517,7 +623,7 @@ const ExportSection = ({ propertyData, results }) => {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
@@ -543,15 +649,15 @@ const ExportSection = ({ propertyData, results }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="p-6">
         <p className="text-gray-600 mb-6 text-center">
           Generate a professional investment report for presentations and documentation.
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.button
-                onClick={exportToPDF}
+          <motion.button
+            onClick={exportToPDF}
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white p-6 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
@@ -562,12 +668,12 @@ const ExportSection = ({ propertyData, results }) => {
                 <FileText className="w-6 h-6" />
               </div>
               <div className="text-left">
-                    <div className="text-lg font-bold">Export PDF</div>
-                    <div className="text-sm opacity-90">Branded report (tabular)</div>
+                <div className="text-lg font-bold">Export PDF</div>
+                <div className="text-sm opacity-90">Branded report (tabular)</div>
               </div>
             </div>
           </motion.button>
-          
+
           <motion.button
             onClick={exportToExcel}
             whileHover={{ scale: 1.02, y: -2 }}
